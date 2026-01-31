@@ -120,6 +120,21 @@ body{
     50%{transform:translateY(-20px)}
 }
 
+/* ================= PAGE 1 : TIMER (visible before card) ================= */
+#page-timer{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;z-index:30;background:radial-gradient(circle at 20% 20%, rgba(255,255,255,0.02), transparent 30%);} 
+.timer-box{background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);padding:36px 44px;border-radius:20px;text-align:center;border:2px solid #ff6b9c;box-shadow:0 30px 60px rgba(255,0,140,0.12);} 
+.timer-title{color:#ffd6e8;margin-bottom:10px;font-size:1.1rem;} 
+#timer{font-size:2.6rem;font-weight:800;color:#fff;text-shadow:0 8px 30px rgba(255,0,140,0.14);} 
+.floating-diagrams{position:absolute;inset:0;pointer-events:none;z-index:5;mix-blend-mode:screen;} 
+.float-item{position:absolute;will-change:transform,opacity;opacity:.95;transition:transform 300ms linear;font-size:2rem;filter:drop-shadow(0 6px 18px rgba(0,0,0,.25));}
+.f1{left:6%;top:70%;animation:floatMove 10s ease-in-out infinite;font-size:2.6rem}
+.f2{left:18%;top:22%;animation:floatMove 11s ease-in-out infinite;font-size:2.4rem}
+.f3{left:46%;top:76%;animation:floatMove 8s ease-in-out infinite;font-size:3.2rem}
+.f4{left:72%;top:28%;animation:floatMove 10s ease-in-out infinite;font-size:2.2rem}
+@keyframes floatMove{0%{transform:translateY(0)}25%{transform:translate3d(-6vw,-8vh,0)rotate(-6deg)}50%{transform:translate3d(0,-14vh,0)rotate(2deg)}75%{transform:translate3d(6vw,-8vh,0)rotate(6deg)}100%{transform:translateY(0)}}
+
+@media (prefers-reduced-motion: reduce){.float-item{animation:none!important;transition:none!important}}
+
 /* ================= MESSAGE PAGE ================= */
 #page-message{
     position:fixed;
@@ -174,6 +189,21 @@ body{
 
 <body>
 
+<!-- PAGE 1 — TIMER -->
+<div id="page-timer" aria-live="polite">
+    <div class="floating-diagrams" aria-hidden="true">
+        <div class="float-item f1">🎈</div>
+        <div class="float-item f2">🎂</div>
+        <div class="float-item f3">🎉</div>
+        <div class="float-item f4">✨</div>
+    </div>
+
+    <div class="timer-box" role="region" aria-label="Countdown to reveal">
+        <div class="timer-title">🎉 Surprise unlocks in</div>
+        <div id="timer">Loading...</div>
+    </div>
+</div>
+
 <!-- PAGE CARD -->
 <div id="page-card">
     <div class="scene" id="scene">
@@ -217,6 +247,86 @@ function typeWriter(){
     }
 }
 setTimeout(typeWriter,800);
+
+/* ================= TIMER — default: reveal after 1 minute ================= */
+(function(){
+    const pageTimer = document.getElementById('page-timer');
+    const timerEl = document.getElementById('timer');
+    const pageCard = document.getElementById('page-card');
+
+    // ensure card is hidden while timer is active
+    if (pageCard) pageCard.style.display = 'none';
+
+    let intervalId = null;
+    let revealTime = null;
+
+    function showCard(){
+        clearInterval(intervalId);
+        if (pageTimer) pageTimer.style.opacity = '0';
+        setTimeout(()=>{
+            if (pageTimer) pageTimer.style.display = 'none';
+            if (pageCard) { pageCard.style.display = ''; pageCard.classList.add('show'); }
+            if (timerEl) timerEl.textContent = 'Unlocked';
+        }, 700);
+    }
+
+    function updateDisplayUntil(t){
+        const diff = Math.max(0, t - Date.now());
+        const d = Math.floor(diff / (1000*60*60*24));
+        const h = Math.floor((diff / (1000*60*60)) % 24);
+        const m = Math.floor((diff / (1000*60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+        if (timerEl) timerEl.textContent = `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+    }
+
+    function startCountdown(seconds){
+        clearInterval(intervalId);
+        if (!pageTimer || !timerEl || !pageCard) return;
+        // show timer UI
+        pageTimer.style.display = '';
+        pageTimer.style.opacity = '1';
+        pageTimer.removeAttribute('aria-hidden');
+        pageCard.style.display = 'none';
+
+        const aligned = Math.ceil(Date.now()/1000)*1000;
+        revealTime = aligned + Math.max(1, Math.floor(seconds)) * 1000;
+        updateDisplayUntil(revealTime);
+        intervalId = setInterval(()=>{
+            if (Date.now() >= revealTime) return showCard();
+            updateDisplayUntil(revealTime);
+        }, 250);
+    }
+
+    // query parsing: seconds (e.g. 3s), plain number (seconds), minutes (e.g. 1m), or 'now'
+    try{
+        const p = new URL(location.href).searchParams.get('reveal');
+        if (p === 'now') { startCountdown(1); return; }
+        if (/^\d+s$/.test(p)) { startCountdown(parseInt(p.replace(/s$/,''),10)); return; }
+        if (/^\d+$/.test(p)) { const n = parseInt(p,10); if (n<=86400) { startCountdown(n); return; } }
+    }catch(e){}
+
+    // DEFAULT: reveal on Feb 2, 00:00 local time (if today is Jan 31 this will count to Feb 2)
+    (function startDefaultToFeb2(){
+        const now = new Date();
+        // monthIndex 1 = February
+        let target = new Date(now.getFullYear(), 1, 2, 0, 0, 0, 0).getTime();
+        if (target <= Date.now()) {
+            // schedule for next year if already past
+            target = new Date(now.getFullYear() + 1, 1, 2, 0, 0, 0, 0).getTime();
+        }
+
+        // show the timer UI and hide the card while counting
+        if (pageTimer) { pageTimer.style.display = ''; pageTimer.style.opacity = '1'; pageTimer.removeAttribute('aria-hidden'); }
+        if (pageCard) pageCard.style.display = 'none';
+
+        revealTime = target;
+        updateDisplayUntil(revealTime);
+        intervalId = setInterval(()=>{
+            if (Date.now() >= revealTime) return showCard();
+            updateDisplayUntil(revealTime);
+        }, 250);
+    })();
+})();
 
 /* ================= 3D MOVE ================= */
 const scene = document.getElementById("scene");
