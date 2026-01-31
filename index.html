@@ -210,7 +210,10 @@ body {
 <body>
 
 <!-- PAGE 1 -->
-<div id="page-timer">
+<!-- TIMING PAGE DISABLED: per user request. The original timer markup is preserved below as a commented reference.
+     Keeping an empty placeholder with the same id prevents JS errors while allowing immediate reveal of page 2. -->
+<div id="page-timer" data-disabled="true" aria-hidden="true" style="display:none;">
+    <!--
     <div class="floating-diagrams" aria-hidden="true">
         <div class="float-item f1">🎈</div>
         <div class="float-item f2">🎂</div>
@@ -224,6 +227,7 @@ body {
         <div class="timer-title">🎉 Birthday Surprise Unlocks In 🎉</div>
         <div id="timer">Loading...</div>
     </div>
+    -->
 </div>
 
 <!-- PAGE 2 -->
@@ -255,45 +259,57 @@ const scene = document.getElementById('scene');
 
 let isOpen = false;
 
-// 🎯 Feb 2, 12:00 AM (local)
-// Build the target date explicitly to avoid month/date rollover (e.g. Jan 31 -> setting month to Feb keeps day=31)
-const nowForReveal = new Date();
-let revealTime = new Date(nowForReveal.getFullYear(), 1, 2, 0, 0, 0, 0); // year, monthIndex(1=Feb), day, hh, mm, ss, ms
-// If Feb 2 this year is already past, schedule for next year
-if (revealTime <= nowForReveal) {
-    revealTime = new Date(nowForReveal.getFullYear() + 1, 1, 2, 0, 0, 0, 0);
-}
+// If the timer is disabled (data-disabled="true" on #page-timer), short-circuit and reveal page 2 immediately.
+const timerDisabled = pageTimer && pageTimer.dataset && pageTimer.dataset.disabled === 'true';
 
-let intervalId;
-function showCard() {
-    clearInterval(intervalId);
-    pageTimer.style.opacity = "0";
-    setTimeout(() => {
-        pageTimer.style.display = "none";
-        pageCard.classList.add("show");
-    }, 1500);
-}
-
-function updateTimer() {
-    const now = new Date();
-    const diff = revealTime - now;
-
-    if (diff <= 0) {
-        timerEl.textContent = 'Unlocked 🎉';
-        showCard();
-        return;
+if (timerDisabled) {
+    // ensure page-timer is hidden and show the card instantly
+    if (pageTimer) {
+        pageTimer.style.display = 'none';
+        pageTimer.setAttribute('aria-hidden', 'true');
+    }
+    pageCard.classList.add('show');
+} else {
+    // 🎯 Feb 2, 12:00 AM (local)
+    // Build the target date explicitly to avoid month/date rollover (e.g. Jan 31 -> setting month to Feb keeps day=31)
+    const nowForReveal = new Date();
+    let revealTime = new Date(nowForReveal.getFullYear(), 1, 2, 0, 0, 0, 0); // year, monthIndex(1=Feb), day, hh, mm, ss, ms
+    // If Feb 2 this year is already past, schedule for next year
+    if (revealTime <= nowForReveal) {
+        revealTime = new Date(nowForReveal.getFullYear() + 1, 1, 2, 0, 0, 0, 0);
     }
 
-    const d = Math.floor(diff / (1000*60*60*24));
-    const h = Math.floor((diff / (1000*60*60)) % 24);
-    const m = Math.floor((diff / (1000*60)) % 60);
-    const s = Math.floor((diff / 1000) % 60);
+    let intervalId;
+    function showCard() {
+        clearInterval(intervalId);
+        if (pageTimer) pageTimer.style.opacity = "0";
+        setTimeout(() => {
+            if (pageTimer) pageTimer.style.display = "none";
+            pageCard.classList.add("show");
+        }, 1500);
+    }
 
-    timerEl.textContent = `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+    function updateTimer() {
+        const now = new Date();
+        const diff = revealTime - now;
+
+        if (diff <= 0) {
+            if (timerEl) timerEl.textContent = 'Unlocked 🎉';
+            showCard();
+            return;
+        }
+
+        const d = Math.floor(diff / (1000*60*60*24));
+        const h = Math.floor((diff / (1000*60*60)) % 24);
+        const m = Math.floor((diff / (1000*60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        if (timerEl) timerEl.textContent = `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+    }
+
+    intervalId = setInterval(updateTimer, 1000);
+    updateTimer();
 }
-
-intervalId = setInterval(updateTimer, 1000);
-updateTimer();
 
 // 3D hover + timer-page parallax
 document.addEventListener('mousemove', e => {
