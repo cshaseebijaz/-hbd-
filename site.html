@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .loader-bg {
+            position: fixed;
+            z-index: 9999;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+        }
+        .loader-bg.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loader-heart {
+            margin-bottom: 18px;
+            animation: loader-pop 1.2s infinite alternate cubic-bezier(.68,-0.55,.27,1.55);
+        }
+        @keyframes loader-pop {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.18); }
+        }
+        .loader-title {
+            font-size: 2rem;
+            color: #ff69b4;
+            text-shadow: 0 2px 10px #0008;
+            font-family: 'Fredoka One', cursive;
+        }
+        .loader-desc {
+            font-size: 1.1rem;
+            color: #ffe066;
+            margin-top: 0.5rem;
+            font-family: 'Fredoka One', cursive;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fredoka One', cursive;
+            color: #fff;
+            position: relative;
+        }
+        .cake {
+            margin-top: 40px;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 3rem;
+            color: #ffb3e6;
+            text-shadow: 0 2px 10px #0008;
+        }
+        .subtitle {
+            font-size: 1.5rem;
+            color: #ff69b4;
+            margin-bottom: 0.5rem;
+        }
+        .desc {
+            font-size: 1.1rem;
+            color: #ffe066;
+            margin-bottom: 2rem;
+        }
+        .memories-btn {
+            background: linear-gradient(90deg, #ff6a00, #ee0979);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 2.2rem;
+            font-size: 1.2rem;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 2px 10px #0005;
+            transition: transform 0.1s;
+        }
+        .memories-btn:hover {
+            transform: scale(1.07);
+        }
+        .balloons {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 2;
+            padding-bottom: 10px;
+        }
+        .balloon {
+            width: 44px;
+            height: 60px;
+            animation: floatBalloon 2.8s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+        /* Staggered animation for each balloon */
+        .balloon:nth-child(2) { animation-delay: 0.3s; }
+        .balloon:nth-child(3) { animation-delay: 0.6s; }
+        .balloon:nth-child(4) { animation-delay: 0.9s; }
+        .balloon:nth-child(5) { animation-delay: 1.2s; }
+        .balloon:nth-child(6) { animation-delay: 1.5s; }
+        .balloon:nth-child(7) { animation-delay: 1.8s; }
+        .balloon:nth-child(8) { animation-delay: 2.1s; }
+        .balloon:nth-child(9) { animation-delay: 2.4s; }
+        .balloon:nth-child(10) { animation-delay: 2.7s; }
+        .balloon:nth-child(11) { animation-delay: 3.0s; }
+        @keyframes floatBalloon {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-22px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown-bg" id="countdownBg" style="position:fixed;z-index:10000;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:linear-gradient(135deg,#0f2027 0%,#2c5364 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;">
+        <div style="font-size:2.5rem;color:#ffb3e6;font-family:'Fredoka One',cursive;text-shadow:0 2px 10px #0008;margin-bottom:0.5em;">A Surprise Awaits...</div>
+        <div id="timer" style="font-size:2.2rem;color:#ffe066;font-family:'Fredoka One',cursive;text-shadow:0 2px 10px #0008;"></div>
+        <div style="color:#fff;margin-top:1.2em;font-size:1.1rem;">Revealing at midnight!</div>
+    </div>
+    <canvas id="pop-canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:100;pointer-events:none;display:none;"></canvas>
+    <div class="loader-bg" id="loaderBg">
+        <div class="loader-heart fancy-heart">
+            <span class="rotating-heart-emoji" style="font-size:3.2rem; display:inline-block;">❤️</span>
+            <div class="heart-pulse"></div>
+        </div>
+        <div class="loader-title">Preparing Something Special</div>
+        <div class="loader-desc">For someone very special...</div>
+    </div>
+    <style>
+        .rotating-heart-emoji {
+            animation: rotate-heart 2.2s linear infinite;
+        }
+        @keyframes rotate-heart {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fancy-heart {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .heart-pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffb3c6 0%, #ff4b5c33 70%, transparent 100%);
+            opacity: 0.7;
+            z-index: 0;
+            animation: pulse-heart 1.2s infinite cubic-bezier(.68,-0.55,.27,1.55);
+        }
+        @keyframes pulse-heart {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+            70% { transform: translate(-50%, -50%) scale(1.25); opacity: 0.3; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+        }
+    </style>
+    <div class="cake">
+</body>
+<script>
+    // Countdown Timer Logic
+    const countdownBg = document.getElementById('countdownBg');
+    const timerEl = document.getElementById('timer');
+    // Target: 12:00 AM (midnight) of the next day
+    // Reveal after exactly 4 hours from now
+    function getRevealAfter4Hours() {
+        return new Date(Date.now() + 4 * 60 * 60 * 1000);
+    }
+    const revealTime = getRevealAfter4Hours();
+    function updateTimer() {
+        const now = new Date();
+        // Convert to PKT (UTC+5)
+        const nowPKT = new Date(now.getTime() + (5 * 60 - now.getTimezoneOffset()) * 60000);
+        let diff = revealTime - nowPKT;
+        if (diff <= 0) {
+            countdownBg.style.display = 'none';
+            document.getElementById('loaderBg').style.display = '';
+            return;
+        }
+        let hours = Math.floor(diff / (1000 * 60 * 60));
+        let mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        let secs = Math.floor((diff % (1000 * 60)) / 1000);
+        timerEl.textContent = `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+        setTimeout(updateTimer, 1000);
+    }
+    // Hide loader until timer is done
+    document.getElementById('loaderBg').style.display = 'none';
+    updateTimer();
+    // Loader fade out after 2.2s, then trigger pop
+    window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            document.getElementById('loaderBg').classList.add('hide');
+        }, 2200);
+        setTimeout(function() {
+            document.getElementById('loaderBg').style.display = 'none';
+            triggerPop();
+        }, 3000);
+    });
+
+    // --- POP Animation ---
+    function triggerPop() {
+        const colors = [
+            '#ff4b5c', // pink
+            '#b967ff', // purple
+            '#ffe066', // yellow
+            '#3ae374', // green
+            '#17c0eb', // cyan
+        ];
+        const canvas = document.getElementById('pop-canvas');
+        const ctx = canvas.getContext('2d');
+        let W = window.innerWidth, H = window.innerHeight;
+        function resizeCanvas() {
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W;
+            canvas.height = H;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        canvas.style.display = 'block';
+
+        function randomBetween(a, b) { return a + Math.random() * (b - a); }
+        class PopLine {
+            constructor(x, y, angle, color) {
+                this.x = x;
+                this.y = y;
+                this.angle = angle;
+                this.color = color;
+                this.length = 0;
+                this.maxLength = randomBetween(H * 0.32, H * 0.48);
+                this.width = randomBetween(2, 3.5);
+                this.speed = randomBetween(420, 620); // px/sec
+                this.alpha = 1;
+                this.done = false;
+            }
+            update(dt) {
+                if (this.length < this.maxLength) {
+                    this.length += this.speed * dt;
+                    if (this.length > this.maxLength) this.length = this.maxLength;
+                } else {
+                    this.alpha -= dt * 1.5;
+                    if (this.alpha <= 0) {
+                        this.alpha = 0;
+                        this.done = true;
+                    }
+                }
+            }
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = this.width;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(
+                    this.x + Math.cos(this.angle) * this.length,
+                    this.y + Math.sin(this.angle) * this.length
+                );
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        function launchPops() {
+            const pops = [];
+            const baseY = H - 8;
+            const leftX = 32;
+            const rightX = W - 32;
+            const n = 13;
+            for (let i = 0; i < n; i++) {
+                // Left burst
+                let angleL = randomBetween(-Math.PI/2 - 0.45, -Math.PI/2 + 0.45);
+                let colorL = colors[Math.floor(Math.random() * colors.length)];
+                pops.push(new PopLine(leftX, baseY, angleL, colorL));
+                // Right burst
+                let angleR = randomBetween(-Math.PI/2 - 0.45, -Math.PI/2 + 0.45);
+                let colorR = colors[Math.floor(Math.random() * colors.length)];
+                pops.push(new PopLine(rightX, baseY, angleR, colorR));
+            }
+            return pops;
+        }
+
+        let lines = [];
+        let hasLaunched = false;
+        let lastTime = null;
+        function animate(now) {
+            if (!lastTime) lastTime = now;
+            let dt = Math.min((now - lastTime) / 1000, 0.04);
+            lastTime = now;
+            ctx.clearRect(0, 0, W, H);
+            if (!hasLaunched) {
+                lines = launchPops();
+                hasLaunched = true;
+            }
+            lines.forEach(l => l.update(dt));
+            lines.forEach(l => l.draw(ctx));
+            lines = lines.filter(l => !l.done);
+            if (lines.length > 0) {
+                requestAnimationFrame(animate);
+            } else {
+                setTimeout(() => { canvas.style.display = 'none'; }, 400);
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+</script>
+        <!-- Simple SVG Cake Icon -->
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="50" width="40" height="18" rx="6" fill="#ffe066"/>
+            <rect x="25" y="38" width="30" height="14" rx="5" fill="#ffb3e6"/>
+            <rect x="30" y="28" width="20" height="10" rx="4" fill="#ff69b4"/>
+            <rect x="38" y="18" width="4" height="10" rx="2" fill="#ffd700"/>
+            <rect x="38" y="10" width="4" height="8" rx="2" fill="#ff6a00"/>
+        </svg>
+    </div>
+    <div class="title">Happy Birthday</div>
+    <div class="subtitle">Madam Ji! <span style="font-size:1.2em">💖</span></div>
+    <div class="desc">It's your special day! <span style="font-size:1.2em">✨</span></div>
+    <a href="letter.html" class="memories-btn" style="text-decoration:none;display:inline-block;">Messages →</a>
+    <div class="balloons">
+        <!-- Balloons: Use SVGs with different colors -->
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#ff4b5c"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#b22234"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#f9d423"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#b8860b"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#3ae374"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#228b22"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#17c0eb"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#1e90ff"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#ffb3e6"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#c71585"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#ff6a00"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#b22222"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#ffe066"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#b8860b"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#3ae374"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#228b22"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#17c0eb"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#1e90ff"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#ffb3e6"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#c71585"/></svg>
+    <svg class="balloon" viewBox="0 0 44 60"><ellipse cx="22" cy="28" rx="20" ry="26" fill="#ff4b5c"/><rect x="20" y="50" width="4" height="8" rx="2" fill="#b22234"/></svg>
+    </div>
+</body>
+</html>

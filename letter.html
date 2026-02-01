@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Letter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fredoka One', cursive;
+            color: #fff;
+            position: relative;
+        }
+        .title {
+            font-size: 2.5rem;
+            color: #ffb3e6;
+            text-shadow: 0 2px 10px #0008;
+            margin-top: 60px;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #ffe066;
+            margin-bottom: 2.5rem;
+        }
+        .message-box {
+            background: linear-gradient(120deg, #ffb3e6 60%, #fff0 100%);
+            border-radius: 18px;
+            box-shadow: 0 4px 24px #0005;
+            padding: 2.2rem 2.5rem 1.5rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 260px;
+            min-height: 120px;
+            opacity: 0;
+            transform: scale(0.92) translateY(40px);
+            transition: all 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+        }
+        .message-box.show {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        .letter-card {
+            background: #fff;
+            color: #222;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px #0003;
+            padding: 1.2rem 1.5rem 1.2rem 1.5rem;
+            min-width: 320px;
+            max-width: 90vw;
+            min-height: 180px;
+            margin-top: 0.5rem;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.05rem;
+            position: relative;
+            border: 2px solid #ffe066;
+            transition: all 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+            opacity: 0;
+            transform: scale(0.92) translateY(40px);
+        }
+        .letter-card.show {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        .letter-header {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .letter-content {
+            white-space: pre-line;
+            font-family: inherit;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        .envelope {
+            margin-bottom: 1rem;
+        }
+        .click-text {
+            color: #ff69b4;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">A Special Letter</div>
+    <div class="subtitle">Just for you, on your special day 💌</div>
+    <div class="message-box" id="msgBox">
+        <div class="envelope" id="envelopeBox">
+            <!-- Envelope SVG -->
+            <svg width="56" height="44" viewBox="0 0 56 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="8" width="52" height="34" rx="8" fill="#fff" stroke="#ff69b4" stroke-width="2"/>
+                <polyline points="2,8 28,32 54,8" fill="none" stroke="#ff69b4" stroke-width="2"/>
+                <rect x="20" y="2" width="16" height="12" rx="4" fill="#ffb3e6" stroke="#ff69b4" stroke-width="2"/>
+                <text x="28" y="12" text-anchor="middle" font-size="12" fill="#ff69b4" font-family="Fredoka One, cursive">💌</text>
+            </svg>
+        </div>
+        <div class="click-text" id="clickText">Click or tap</div>
+        <div class="letter-card" id="letterCard" style="display:none;">
+            <div class="letter-header">
+                <span style="font-size:1.5em;">❤️</span>
+            </div>
+            <div class="letter-content" id="letterContent">
+                <!-- Typing animation will go here -->
+            </div>
+        </div>
+    </div>
+    <script>
+        // Smooth show animation for message box
+        const msgBox = document.getElementById('msgBox');
+        setTimeout(function() {
+            msgBox.classList.add('show');
+        }, 200);
+
+        // Letter content for typing
+    const letterText = `Happy birthday to you my world 🌍🎉 happy birthday to you mri Jan 🥰 happy birthday my soulmate, my wife, loving, caring and understandable person 🫶🫶 I always remember our beautiful relation and memories 🤩🤩🥳🥳🥳🥳🥰🥰🥰 God bless you 🥰🥰 enjoy your day and keep smiling mri Jan 😊😊 always stay happy with Me 💗💗 I am thankful for every moment I wish our happiness never end 🥰🥰 you make my life worth living you bring smile to my face 😍😍 I feel that I am luckiest boy in the world 🌎 when I think how much you love me and care for me\n\nHappy birthday mri Jan, my life partner, my princess, my soulmate, my everything, my world. I love you soooo soooo soooo much you are my happiness 🌹🌹 the most beautiful person in my heart and in my life 💕💕 mri Jan I love you so much more than everything, I love you more than world, I love you more than myself, I love you more than every person that belongs to me because you are very special for me, I love you more than gifts, wealth because you are my expensive gift that Allah gave me in shape of you 🌷🌸🌸🌸🌸 thanks for being in my life 💕💕💕💕 thank you for still being with me 🌹🌹 thank you for showing a love 💕💕 thank you for everything\n\nI wish that Allah gave you happy life and fulfill your dream with greatful success, I wish that Allah gave you success in every field of life, 🌸🌸🌸🌹🌹🌹🩷🩷🩷😍😍🥰🥰🥰🥰🥳🥳🥳🥳 I wish that Allah always bring AAA smile on your face, because this face is more precious and I am mad for this face for this personality for your heart for youuuuhhhhhh 🌷🌷 I promise you that I always stay with you in every situation of life, I promise that I will never leave and don't want to lose you because you are my everything, my world cannot explain my feelings 🌹🌹 I can't realize how lucky I am to have you in my life 💕💕 today it's not only your special day also it's my special day 🌸🌸🌸 because it's my wife birthday 🎂🎂🎂🎈🎈🎈🎈🎈🎂🎂🎂🎂🎂🎂 happy birthday to the queen of my heart ❤️❤️❤️ the man of my dreams and the love of my life\n\nI can't imagine my life without you\n\nThank you for always being there mri Jan..\nOnce again happy birthday to you, you are the only one flower 🎂🎂 🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳`;
+
+        // Typing animation
+        let typingInProgress = false;
+        function typeWriter(text, i, speed, element, callback) {
+            if (!typingInProgress) return;
+            if (i < text.length) {
+                let char = text.charAt(i);
+                if (char === '\\') {
+                    // handle escaped newline
+                    if (text.charAt(i+1) === 'n') {
+                        element.innerHTML += '<br>';
+                        i += 2;
+                    } else {
+                        element.innerHTML += char;
+                        i++;
+                    }
+                } else {
+                    element.innerHTML += char;
+                    i++;
+                }
+                setTimeout(function() { typeWriter(text, i, speed, element, callback); }, speed);
+            } else if (callback) {
+                callback();
+            }
+        }
+
+        // Show letter on click
+        let letterShown = false;
+        msgBox.addEventListener('click', function() {
+            if (letterShown) return;
+            letterShown = true;
+            document.getElementById('envelopeBox').style.display = 'none';
+            document.getElementById('clickText').style.display = 'none';
+            var card = document.getElementById('letterCard');
+            card.style.display = 'block';
+            setTimeout(function() {
+                card.classList.add('show');
+            }, 10);
+            // Start typing
+            setTimeout(function() {
+                typingInProgress = true;
+                document.getElementById('letterContent').innerHTML = '';
+                typeWriter(letterText, 0, 22, document.getElementById('letterContent'), function() { typingInProgress = false; });
+            }, 400);
+        });
+    </script>
+</body>
+</html>

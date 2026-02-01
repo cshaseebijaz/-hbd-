@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday POP</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      min-height: 100vh;
+      min-width: 100vw;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 60% 40%, #232946 60%, #0f1021 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    #pop-canvas {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="pop-canvas"></canvas>
+  <script>
+  // Run pop animation immediately on page load
+  document.getElementById('pop-canvas').style.display = 'block';
+    // --- POP Animation ---
+    const colors = [
+      '#ff4b5c', // pink
+      '#b967ff', // purple
+      '#ffe066', // yellow
+      '#3ae374', // green
+      '#17c0eb', // cyan
+    ];
+    const canvas = document.getElementById('pop-canvas');
+    const ctx = canvas.getContext('2d');
+    let W = window.innerWidth, H = window.innerHeight;
+    function resizeCanvas() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W;
+      canvas.height = H;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Particle system
+    function randomBetween(a, b) { return a + Math.random() * (b - a); }
+    class PopLine {
+      constructor(x, y, angle, color) {
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
+        this.color = color;
+        this.length = 0;
+        this.maxLength = randomBetween(H * 0.32, H * 0.48);
+        this.width = randomBetween(2, 3.5);
+        this.speed = randomBetween(420, 620); // px/sec
+        this.alpha = 1;
+        this.done = false;
+      }
+      update(dt) {
+        if (this.length < this.maxLength) {
+          this.length += this.speed * dt;
+          if (this.length > this.maxLength) this.length = this.maxLength;
+        } else {
+          this.alpha -= dt * 1.5;
+          if (this.alpha <= 0) {
+            this.alpha = 0;
+            this.done = true;
+          }
+        }
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = this.width;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(
+          this.x + Math.cos(this.angle) * this.length,
+          this.y + Math.sin(this.angle) * this.length
+        );
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    // Launch pops from bottom left and right
+    function launchPops() {
+      const pops = [];
+      const baseY = H - 8;
+      const leftX = 32;
+      const rightX = W - 32;
+      const n = 13;
+      for (let i = 0; i < n; i++) {
+        // Left burst
+        let angleL = randomBetween(-Math.PI/2 - 0.45, -Math.PI/2 + 0.45);
+        let colorL = colors[Math.floor(Math.random() * colors.length)];
+        pops.push(new PopLine(leftX, baseY, angleL, colorL));
+        // Right burst
+        let angleR = randomBetween(-Math.PI/2 - 0.45, -Math.PI/2 + 0.45);
+        let colorR = colors[Math.floor(Math.random() * colors.length)];
+        pops.push(new PopLine(rightX, baseY, angleR, colorR));
+      }
+      return pops;
+    }
+
+
+    let lines = [];
+    let hasLaunched = false;
+    let lastTime = null;
+    function animate(now) {
+      if (!lastTime) lastTime = now;
+      let dt = Math.min((now - lastTime) / 1000, 0.04);
+      lastTime = now;
+      ctx.clearRect(0, 0, W, H);
+      if (!hasLaunched) {
+        lines = launchPops();
+        hasLaunched = true;
+      }
+      lines.forEach(l => l.update(dt));
+      lines.forEach(l => l.draw(ctx));
+      lines = lines.filter(l => !l.done);
+      if (lines.length > 0) {
+        requestAnimationFrame(animate);
+      }
+    }
+    function animate(now) {
+      if (!lastTime) lastTime = now;
+      let dt = Math.min((now - lastTime) / 1000, 0.04);
+      lastTime = now;
+      canvas.style.display = 'block';
+      ctx.clearRect(0, 0, W, H);
+      if (!hasLaunched) {
+        lines = launchPops();
+        hasLaunched = true;
+      }
+      lines.forEach(l => l.update(dt));
+      lines.forEach(l => l.draw(ctx));
+      lines = lines.filter(l => !l.done);
+      if (lines.length > 0) {
+        requestAnimationFrame(animate);
+      }
+    }
+    requestAnimationFrame(animate);
+
+    // Responsive: re-launch on resize
+    window.addEventListener('resize', () => {
+      hasLaunched = false;
+      lines = [];
+      setTimeout(() => {
+        ctx.clearRect(0, 0, W, H);
+        animate();
+      }, 200);
+    });
+  </script>
+</body>
+</html>
