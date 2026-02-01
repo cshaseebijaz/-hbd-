@@ -1,11 +1,11 @@
-# Netlify configuration — publish repository root and serve `hbd.html` at /
+# Netlify configuration — publish repository root and serve `site.html` at /
 [build]
   # publish site from repository root
   publish = "."
   # no build command needed for a plain HTML file
   command = ""
 
-# Redirect root to hbd.html so the site is served at the root URL
+# Redirect root to site.html so the site is served at the root URL
 [[redirects]]
   from = "/"
   to = "/hbd.html"
