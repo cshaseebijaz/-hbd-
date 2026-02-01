@@ -8,6 +8,6 @@
 # Redirect root to site.html so the site is served at the root URL
 [[redirects]]
   from = "/"
-  to = "/hbd.html"
+  to = "/site.html"
   status = 200
   force = true
